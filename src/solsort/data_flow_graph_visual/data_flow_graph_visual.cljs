@@ -27,11 +27,9 @@
         y (js/Math.floor (mod n double-rows))
         second (>= y (/ double-rows 2))
         y (if second (- y -0.5 (js/Math.ceil (/ double-rows 2))) y)
-        x (if second (inc x) x)
-        ]
+        x (if second (inc x) x)]
     (log 'double-row double-rows x2 y)
-    [(* x size) (+ top-margin (* y size))])
-  )
+    [(* x size) (+ top-margin (* y size))]))
 
 (defn hash-color-light [s]
   (str "#"
@@ -45,65 +43,57 @@
 (def graph-size (+ 10 (rand-int 90)))
 (def ops {"+" + "-" - "*" * "/" /})
 #_(defn rand-args [i]
-  (for [j (range (inc (rand-int 5)))] (rand-int i)))
+    (for [j (range (inc (rand-int 5)))] (rand-int i)))
 (defn rand-args [i]
   (for [j (range (inc (rand-int 3)))]
-    (js/Math.floor (* i (- 1 (js/Math.pow (js/Math.random) 2))))
-    ))
+    (js/Math.floor (* i (- 1 (js/Math.pow (js/Math.random) 2))))))
 (def graph
   (loop [g [{:val -1 :fn "Immediate" :args [] :i 0}]
-        i 1]
-   (if (= i graph-size)
-     g
-     (let [e {:fn (rand-nth ["+" "-" "*" "/"]) :args (rand-args i)
-              :i i}
-           e (assoc e :val (apply (ops (:fn e)) (map #(:val (g %)) (:args e))))
+         i 1]
+    (if (= i graph-size)
+      g
+      (let [e {:fn (rand-nth ["+" "-" "*" "/"]) :args (rand-args i)
+               :i i}
+            e (assoc e :val (apply (ops (:fn e)) (map #(:val (g %)) (:args e))))
            ;e (assoc e :val i)
-           ]
-       (recur (conj g e) (inc i))))))
+]
+        (recur (conj g e) (inc i))))))
 
 (log (js/JSON.stringify (clj->js graph)))
 (defn flow-lines []
   (into
-   [:svg {:height height :width (* size 2 (+ .25 (js/Math.ceil (/ graph-size double-rows))))}
-    ]
-    (apply
-     concat
-     (for [node graph]
-       (for [i (range (count (:args node)))]
-         (let [src (nth (:args node) i)
-               dst (:i node)
-               [x0 y0] (box-pos src)
-                x0 (+ x0 size)
-                y0 (+ y0 (* .25 size))
-               xpos (/ (inc i) (inc (count (:args node))))
-               [x1 y1] (box-pos dst)
-               x1 (+ x1 (* xpos size))
-               ]
-              [:path
-               {:d (str "M " x0 " " y0 " "
-                        "C "
-                        (+ x0 (* 1 size)) " " y0 " "
-                        x1 " " (- y1 (* 0.25 size) (* 0.05 size (- dst src))) " "
-                        x1 " " y1 " "
-                        )
-                :stroke-width 1.5
-                :stroke (hash-color-light (str (nth (:args node) i)))
-                :fill "none"
-                }])
-          )
-       ))
-    #_[:path {:d "M 100 350 c 100 100 150 -300 300 0"
-            :stroke-width 5
-            :stroke :black
-            :fill "none"
-            }]))
+   [:svg {:height height :width (* size 2 (+ .25 (js/Math.ceil (/ graph-size double-rows))))}]
+   (apply
+    concat
+    (for [node graph]
+      (for [i (range (count (:args node)))]
+        (let [src (nth (:args node) i)
+              dst (:i node)
+              [x0 y0] (box-pos src)
+              x0 (+ x0 size)
+              y0 (+ y0 (* .25 size))
+              xpos (/ (inc i) (inc (count (:args node))))
+              [x1 y1] (box-pos dst)
+              x1 (+ x1 (* xpos size))]
+          [:path
+           {:d (str "M " x0 " " y0 " "
+                    "C "
+                    (+ x0 (* 1 size)) " " y0 " "
+                    x1 " " (- y1 (* 0.25 size) (* 0.05 size (- dst src))) " "
+                    x1 " " y1 " ")
+            :stroke-width 1.5
+            :stroke (hash-color-light (str (nth (:args node) i)))
+            :fill "none"}]))))
+   #_[:path {:d "M 100 350 c 100 100 150 -300 300 0"
+             :stroke-width 5
+             :stroke :black
+             :fill "none"}]))
 (defn data-boxes []
   (into
    [:div]
-    (for [node graph]
-      (let [[x y] (box-pos (:i node))]
-        (log node x y)
+   (for [node graph]
+     (let [[x y] (box-pos (:i node))]
+       (log node x y)
        [:div
         {:style
          {:display :inline-block
@@ -116,32 +106,26 @@
           :border-radius (* .1 size)
           :overflow :hidden
           :left x
-          :top y
-          }}
+          :top y}}
         [:div
          {:style {:height (* .25 size)
                   :background "rgba(240,255,255,0.9)"}}
          (:fn node)]
         [:div
          {:style {:background "rgba(255,240,255,0.9)"}}
-         (:val node)[:br] "\u00a0"]
-        ])
-     )))
+         (:val node) [:br] "\u00a0"]]))))
 (render [:div
          [:h1 "Data flow graph visual"]
          [:div {:style {:margin "1ex"}} "This is an experiment with how to make a compact visual representation of a data flow graph. Below is a random data flow graph, with values and operations in nodes, and lines showing the flow. This is an experiment towards better data-calc/touch-lang."]
          [:div {:style {:margin "1ex"}} "Scroll right in the graph below to see more, and reload to see a new one."]
          [:div {:style [:height height]}]
          [:div
-                {:style {:position :fixed
-                         :display :inline-block
-                         :width "100%"
-                         :background :black
-                         :overflow :auto
-                         :bottom 0
-                         }}
-                [data-boxes]
-                [flow-lines]
-                ]]
-        )
+          {:style {:position :fixed
+                   :display :inline-block
+                   :width "100%"
+                   :background :black
+                   :overflow :auto
+                   :bottom 0}}
+          [data-boxes]
+          [flow-lines]]])
 
