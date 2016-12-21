@@ -114,11 +114,12 @@
         [:div
          {:style {:background "rgba(255,240,255,0.9)"}}
          (:val node) [:br] "\u00a0"]]))))
+
 (render [:div
          [:h1 "Data flow graph visual"]
          [:div {:style {:margin "1ex"}} "This is an experiment with how to make a compact visual representation of a data flow graph. Below is a random data flow graph, with values and operations in nodes, and lines showing the flow. This is an experiment towards better data-calc/touch-lang."]
          [:div {:style {:margin "1ex"}} "Scroll right in the graph below to see more, and reload to see a new one."]
-         [:div {:style [:height height]}]
+         [:div {:style {:height height}}]
          [:div
           {:style {:position :fixed
                    :display :inline-block
@@ -127,5 +128,7 @@
                    :overflow :auto
                    :bottom 0}}
           [data-boxes]
-          [flow-lines]]])
+          [flow-lines]
+          ]])
+
 
